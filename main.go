@@ -86,9 +86,9 @@ func fetchStartingFrom(cfg config, startAt int) ([]JiraIssue, error) {
 
 // Define Prometheus metrics
 var (
-    jiraIssuesCount = prometheus.NewGaugeVec(
+    jiraIssueCount = prometheus.NewGaugeVec(
         prometheus.GaugeOpts{
-            Name: "jira_issues_count",
+            Name: "jira_issue_count",
             Help: "Count of Jira issues by various labels.",
         },
         []string{"project", "priority", "status", "statusCategory", "assignee", "issueType"},
@@ -105,7 +105,7 @@ var (
 
 func init() {
     // Register metrics with Prometheus
-    prometheus.MustRegister(jiraIssuesCount)
+    prometheus.MustRegister(jiraIssueCount)
     prometheus.MustRegister(jiraIssueTimeInStatus)
 }
 
@@ -147,7 +147,7 @@ type JiraIssue struct {
 // transformDataForPrometheus updates Prometheus metrics instead of returning a string
 func transformDataForPrometheus(issue JiraIssue) {
     //fmt.Printf("Processing issue %s\n", issue.Key)
-    jiraIssuesCount.With(prometheus.Labels{
+    jiraIssueCount.With(prometheus.Labels{
         "project":        issue.Fields.Project.Key,
         "priority":       issue.Fields.Priority.Name,
         "status":         issue.Fields.Status.Name,
@@ -186,12 +186,33 @@ func calculateStatusDurations(issue JiraIssue) {
 
 // exposeMetrics serves the Prometheus metrics using promhttp
 func exposeMetrics(cfg config) {
+    http.Handle("/liveness", livenessHandler())
+    http.Handle("/readiness", readinessHandler(cfg))
     http.Handle("/metrics", promhttp.Handler())
     fmt.Printf("Serving metrics on %s\n", cfg.listen)
     err := http.ListenAndServe(cfg.listen, nil)
     if err != nil {
         fmt.Println("Error starting HTTP server:", err)
     }
+}
+
+func livenessHandler() http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        w.WriteHeader(http.StatusOK)
+    })
+}
+
+func readinessHandler(cfg config) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        _, err := fetchStartingFrom(cfg, 0)
+        if err != nil {
+            fmt.Printf("Error fetching Jira data: %s\n", err)
+            w.WriteHeader(http.StatusInternalServerError)
+            return
+        } else {
+            w.WriteHeader(http.StatusOK)
+        }
+    })
 }
 
 func main() {
@@ -213,7 +234,7 @@ func main() {
     // Repeat every cfg.dataRefreshPeriod and fetch Jira data
     go func() {
         for {
-            jiraIssuesCount.Reset()
+            jiraIssueCount.Reset()
             jiraIssueTimeInStatus.Reset()
             now := time.Now()
             issues, err := fetchJiraData(cfg)
