@@ -25,15 +25,15 @@ The exporter provides the following metrics:
 
 The exporter is configured via environment variables:
 
-| Variable              | Description                                      |
-|-----------------------|--------------------------------------------------|
-| `LISTEN`              | Address to listen                                |
-| `JIRA_URL`            | Jira URL                                         |
-| `JIRA_USER`           | Jira username                                    |
-| `JIRA_API_TOKEN`      | Jira API token                                   |
-| `JIRA_PROJECTS`       | Comma-separated list of Jira projects to monitor |
-| `ANALYZE_PERIOD`      | Number of days to analyze (default: `90`)        |
-| `DATA_REFRESH_PERIOD` | Data refresh period in seconds (default: `5m`)   |
+| Variable              | Description                                                                                                                                    |
+|-----------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| `LISTEN`              | Address to listen                                                                                                                              |
+| `JIRA_URL`            | Jira URL                                                                                                                                       |
+| `JIRA_USER`           | Jira username                                                                                                                                  |
+| `JIRA_API_TOKEN`      | Jira API token                                                                                                                                 |
+| `JIRA_PROJECTS`       | Comma-separated list of Jira projects to monitor                                                                                               |
+| `ANALYZE_PERIOD`      | Number of days to analyze (default: `90`) or one of the functions ```startOfYear```,```startOfMonth```,```startOfWeek```,```startOfDay```,     |
+| `DATA_REFRESH_PERIOD` | Data refresh period in seconds (default: `5m`)                                                                                                 |
 
 
 ## Todo
