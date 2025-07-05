@@ -32,7 +32,7 @@ The exporter is configured via environment variables:
 | `JIRA_USER`           | Jira username                                    |
 | `JIRA_API_TOKEN`      | Jira API token                                   |
 | `JIRA_PROJECTS`       | Comma-separated list of Jira projects to monitor |
-| `ANALYZE_PERIOD_DAYS` | Number of days to analyze (default: `90`)        |
+| `ANALYZE_PERIOD`      | Number of days to analyze (default: `90`)        |
 | `DATA_REFRESH_PERIOD` | Data refresh period in seconds (default: `5m`)   |
 
 
